@@ -16,13 +16,18 @@ class GeminiClient:
         self._flash = genai.GenerativeModel(settings.GEMINI_MODEL)
         self._pro = genai.GenerativeModel(settings.GEMINI_MODEL_PRO)
 
-    def generate(self, prompt: str, temperature: float = 0.7) -> str:
+    def generate(
+        self,
+        prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 2048,
+        ) -> str:
         """Fast path — use for question gen, per-turn scoring, etc."""
         response = self._flash.generate_content(
             prompt,
-            generation_config={
+                generation_config={
                 "temperature": temperature,
-                "max_output_tokens": 2048,
+                "max_output_tokens": max_tokens,
             },
         )
         return response.text.strip()
@@ -34,6 +39,26 @@ class GeminiClient:
             generation_config={
                 "temperature": temperature,
                 "max_output_tokens": 4096,
+            },
+        )
+        return response.text.strip()
+
+    def generate_json(
+        self,
+        prompt: str,
+        temperature: float = 0.3,
+        max_tokens: int = 8192,
+    ) -> str:
+        """JSON-mode generation — Gemini guarantees valid JSON output.
+
+        Use this for any structured extraction task.
+        """
+        response = self._flash.generate_content(
+            prompt,
+            generation_config={
+                "temperature": temperature,
+                "max_output_tokens": max_tokens,
+                "response_mime_type": "application/json",
             },
         )
         return response.text.strip()
