@@ -12,7 +12,7 @@ class Settings:
     # Gemini
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     # Hot path: question gen, scoring, fast turn-by-turn (most calls)
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
     # Cold path: final feedback report (1 call, quality matters)
     GEMINI_MODEL_PRO: str = os.getenv("GEMINI_MODEL_PRO", "gemini-2.5-pro")

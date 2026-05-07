@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.services.gemini_client import gemini
 from app.api.resume import router as resume_router
+from app.api.interview import router as interview_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -19,6 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(resume_router)
+app.include_router(interview_router)
 
 @app.get("/")
 def root():
