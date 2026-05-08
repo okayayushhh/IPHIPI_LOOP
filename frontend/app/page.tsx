@@ -6,6 +6,8 @@ import { BackendStatus } from "./components/BackendStatus";
 import { LandingScreen, type ParseResult } from "./components/screens/LandingScreen";
 import { RolesScreen } from "./components/screens/RolesScreen";
 import { InterviewScreen } from "./components/screens/InterviewScreen";
+import { FeedbackScreen } from "./components/screens/FeedbackScreen";
+import type { MultimodalAvgs } from "./components/screens/InterviewScreen";
 
 type InferredRole = ParseResult["inferred_roles"][number];
 
@@ -29,7 +31,12 @@ export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [firstQuestion, setFirstQuestion] = useState<string | null>(null);
   const [initialState, setInitialState] = useState<StateSummary | null>(null);
-
+  const [multimodalAvgs, setMultimodalAvgs] = useState<MultimodalAvgs>({
+    eye_contact: 0.7,
+    posture: 0.7,
+    engagement: 0.7,
+    stress: 0.3,
+  });
   return (
     <div className="app">
       <Sidebar route={route} setRoute={setRoute} />
@@ -61,12 +68,25 @@ export default function Home() {
             initialQuestion={firstQuestion}
             initialState={initialState}
             setRoute={setRoute}
+            onEndInterview={(avgs) => {
+              setMultimodalAvgs(avgs);
+              setRoute("feedback");
+            }}
           />
         )}
         {route === "interview" && !sessionId && (
           <PlaceholderScreen title="Start a session first" num="04" sub="Go back to step 03." />
         )}
-        {route === "feedback" && <PlaceholderScreen title="Feedback report" num="05" sub="Coming in chunk 8." />}
+        {route === "feedback" && sessionId && (
+          <FeedbackScreen
+            sessionId={sessionId}
+            multimodalAvgs={multimodalAvgs}
+            setRoute={setRoute}
+          />
+        )}
+        {route === "feedback" && !sessionId && (
+          <PlaceholderScreen title="Run an interview first" num="05" sub="Go back to step 01." />
+        )}
         {route === "jobs" && <PlaceholderScreen title="Recommended jobs" num="06" />}
         {route === "history" && <PlaceholderScreen title="Past sessions" num="07" />}
       </main>

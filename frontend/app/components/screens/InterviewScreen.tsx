@@ -7,6 +7,7 @@ import type { Route } from "../Sidebar";
 import { useMultimodal } from "../hooks/useMultimodal";
 import { MultimodalHud, HudBars } from "../MultimodalHud";
 
+
 type TranscriptEntry = {
   who: "agent" | "user";
   text: string;
@@ -33,21 +34,47 @@ type ScoreResult = {
   rationale: string;
 };
 
+export type MultimodalAvgs = {
+  eye_contact: number;
+  posture: number;
+  engagement: number;
+  stress: number;
+};
+
 export function InterviewScreen({
   sessionId,
   initialQuestion,
   initialState,
   setRoute,
+  onEndInterview,
 }: {
   sessionId: string;
   initialQuestion: string;
   initialState: StateSummary;
   setRoute: (r: Route) => void;
+  onEndInterview: (avgs: MultimodalAvgs) => void;
 }) {
   // Voice
   const speech = useSpeech();
 
   const multimodal = useMultimodal();
+  // Track multimodal session averages so we can pass them to the feedback report
+  const multimodalSumRef = useRef({
+    eyeContact: 0,
+    posture: 0,
+    engagement: 0,
+    stress: 0,
+    samples: 0,
+  });
+
+  useEffect(() => {
+    if (!multimodal.scores.faceDetected) return;
+    multimodalSumRef.current.eyeContact += multimodal.scores.eyeContact;
+    multimodalSumRef.current.posture += multimodal.scores.posture;
+    multimodalSumRef.current.engagement += multimodal.scores.engagement;
+    multimodalSumRef.current.stress += multimodal.scores.stress;
+    multimodalSumRef.current.samples += 1;
+  }, [multimodal.scores]);
 
   // Auto-start camera once on mount
   useEffect(() => {
@@ -200,7 +227,14 @@ export function InterviewScreen({
             className="btn btn-sm"
             onClick={() => {
               speech.cancelSpeak();
-              setRoute("feedback");
+              const s = multimodalSumRef.current;
+              const n = Math.max(1, s.samples);
+              onEndInterview({
+                eye_contact: s.eyeContact / n,
+                posture: s.posture / n,
+                engagement: s.engagement / n,
+                stress: s.stress / n,
+              });
             }}
           >
             End & review →
@@ -417,7 +451,16 @@ export function InterviewScreen({
             <button
               className="btn btn-pri"
               style={{ width: "100%", justifyContent: "center" }}
-              onClick={() => setRoute("feedback")}
+              onClick={() => {
+                const s = multimodalSumRef.current;
+                const n = Math.max(1, s.samples);
+                onEndInterview({
+                  eye_contact: s.eyeContact / n,
+                  posture: s.posture / n,
+                  engagement: s.engagement / n,
+                  stress: s.stress / n,
+                });
+              }}
             >
               See feedback →
             </button>

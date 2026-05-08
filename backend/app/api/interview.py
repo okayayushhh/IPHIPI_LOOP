@@ -7,6 +7,8 @@ from app.models.resume import ResumeParseResult, InferredRole
 from app.services.session_store import sessions
 from app.agents.question_generator import generate_question
 from app.agents.answer_evaluator import evaluate_answer
+from app.services.feedback_synthesizer import synthesize_feedback
+from app.models.feedback import FeedbackReport
 
 
 router = APIRouter(prefix="/api/interview", tags=["interview"])
@@ -166,3 +168,40 @@ async def get_session(session_id: str):
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
     return state.model_dump(mode="json")
+
+class MultimodalAvgsRequest(BaseModel):
+    eye_contact: float = 0.7
+    posture: float = 0.7
+    engagement: float = 0.7
+    stress: float = 0.3
+
+
+@router.post("/{session_id}/feedback", response_model=FeedbackReport)
+async def get_feedback(session_id: str, multimodal: MultimodalAvgsRequest | None = None):
+    """Synthesize the feedback report for a completed (or paused) session."""
+    state = sessions.get(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if not state.answers:
+        raise HTTPException(
+            status_code=400,
+            detail="No answers in this session yet — answer at least one question first.",
+        )
+
+    multimodal_dict = (
+        multimodal.model_dump() if multimodal else None
+    )
+
+    try:
+        report = synthesize_feedback(state, multimodal_dict)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        print(f"[/feedback] Error: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail=f"Synthesis error: {e}")
+
+    # Mark session complete
+    state.status = "completed"
+    sessions.save(state)
+
+    return report
