@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { AgentPersona, StateLabel } from "../AgentPersona";
 import { useSpeech } from "../hooks/useSpeech";
 import type { Route } from "../Sidebar";
+import { useMultimodal } from "../hooks/useMultimodal";
+import { MultimodalHud, HudBars } from "../MultimodalHud";
 
 type TranscriptEntry = {
   who: "agent" | "user";
@@ -44,6 +46,17 @@ export function InterviewScreen({
 }) {
   // Voice
   const speech = useSpeech();
+
+  const multimodal = useMultimodal();
+
+  // Auto-start camera once on mount
+  useEffect(() => {
+    multimodal.start();
+    return () => {
+      multimodal.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Conversation state
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([
@@ -206,6 +219,7 @@ export function InterviewScreen({
         }}
       >
         {/* CAMERA placeholder */}
+        {/* CAMERA — live webcam + MediaPipe overlay */}
         <div
           className="card"
           style={{
@@ -215,26 +229,83 @@ export function InterviewScreen({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "#1a1814",
+            background: "#0a0908",
           }}
         >
-          <div
+          <video
+            ref={multimodal.videoRef}
+            autoPlay
+            playsInline
+            muted
             style={{
-              color: "var(--ink-3)",
-              fontSize: 13,
-              textAlign: "center",
-              padding: 32,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: "scaleX(-1)", // mirror — feels natural
             }}
-          >
-            <div style={{ fontSize: 24, marginBottom: 12 }}>📷</div>
-            <div>Camera + multimodal HUD</div>
-            <div style={{ fontSize: 11, color: "var(--ink-4)", marginTop: 6 }}>
-              Live MediaPipe overlay lands in next chunk
-            </div>
-          </div>
-          <div style={{ position: "absolute", top: 14, left: 14 }}>
+          />
+          <canvas
+            ref={multimodal.canvasRef}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              transform: "scaleX(-1)", // mirror to match video
+            }}
+          />
+
+          {/* "You" badge */}
+          <div style={{ position: "absolute", top: 14, left: 14, zIndex: 5 }}>
             <span className="chip" style={{ fontSize: 10 }}>You</span>
           </div>
+
+          {/* HUD pills */}
+          {multimodal.isActive && <MultimodalHud scores={multimodal.scores} />}
+
+          {/* Loading / error overlays */}
+          {multimodal.isLoading && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--ink-3)",
+                fontSize: 13,
+                background: "rgba(0,0,0,0.4)",
+                zIndex: 10,
+              }}
+            >
+              Loading multimodal models…
+            </div>
+          )}
+          {multimodal.error && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--bad)",
+                fontSize: 12,
+                padding: 20,
+                textAlign: "center",
+                background: "rgba(0,0,0,0.7)",
+                zIndex: 10,
+              }}
+            >
+              <div style={{ fontSize: 22, marginBottom: 8 }}>⚠</div>
+              <div>{multimodal.error}</div>
+              <div style={{ marginTop: 8, color: "var(--ink-3)", fontSize: 11 }}>
+                Allow camera access in Chrome settings, then refresh.
+              </div>
+            </div>
+          )}
         </div>
 
         {/* AGENT */}
@@ -355,6 +426,9 @@ export function InterviewScreen({
 
         {/* RIGHT COLUMN: HUD + Transcript */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14, minHeight: 0 }}>
+          {/* Live multimodal bars */}
+          {multimodal.isActive && <HudBars scores={multimodal.scores} />}
+
           {/* Adaptive decision card — THE WOW */}
           <div className="card" style={{ padding: 16 }}>
             <div
