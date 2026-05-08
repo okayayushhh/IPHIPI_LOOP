@@ -441,8 +441,8 @@ function RadarChart({ dimensions }: { dimensions: Dimension[] }) {
     return {
       x: center + Math.cos(angle) * r,
       y: center + Math.sin(angle) * r,
-      labelX: center + Math.cos(angle) * (radius + 18),
-      labelY: center + Math.sin(angle) * (radius + 18),
+      labelX: center + Math.cos(angle) * (radius + 24),
+      labelY: center + Math.sin(angle) * (radius + 24),
       label: d.label,
       score: d.score,
     };
