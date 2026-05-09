@@ -24,6 +24,11 @@ class Settings:
     # CORS — allow our Next.js frontend
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
+    # Job recommendations
+    ADZUNA_APP_ID: str = os.getenv("ADZUNA_APP_ID", "")
+    ADZUNA_APP_KEY: str = os.getenv("ADZUNA_APP_KEY", "")
+    JOB_COUNTRY: str = os.getenv("JOB_COUNTRY", "in")  # in / us / gb / etc.
+
     def validate(self):
         """Raise if anything critical is missing."""
         if not self.GEMINI_API_KEY:

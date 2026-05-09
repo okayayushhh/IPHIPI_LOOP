@@ -8,6 +8,7 @@ import { RolesScreen } from "./components/screens/RolesScreen";
 import { InterviewScreen } from "./components/screens/InterviewScreen";
 import { FeedbackScreen } from "./components/screens/FeedbackScreen";
 import type { MultimodalAvgs } from "./components/screens/InterviewScreen";
+import { JobsScreen } from "./components/screens/JobsScreen";
 
 type InferredRole = ParseResult["inferred_roles"][number];
 
@@ -87,7 +88,9 @@ export default function Home() {
         {route === "feedback" && !sessionId && (
           <PlaceholderScreen title="Run an interview first" num="05" sub="Go back to step 01." />
         )}
-        {route === "jobs" && <PlaceholderScreen title="Recommended jobs" num="06" />}
+        {route === "jobs" && (
+          <JobsScreen resume={resume} role={selectedRole} setRoute={setRoute} />
+        )}
         {route === "history" && <PlaceholderScreen title="Past sessions" num="07" />}
       </main>
       <BackendStatus />

@@ -5,6 +5,7 @@ from app.config import settings
 from app.services.gemini_client import gemini
 from app.api.resume import router as resume_router
 from app.api.interview import router as interview_router
+from app.api.jobs import router as jobs_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -21,6 +22,7 @@ app.add_middleware(
 )
 app.include_router(resume_router)
 app.include_router(interview_router)
+app.include_router(jobs_router)
 
 @app.get("/")
 def root():
