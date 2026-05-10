@@ -438,6 +438,7 @@ function ScoreRing({ value, size = 120 }: { value: number; size?: number }) {
 // ─── Radar Chart (pure SVG) ─────────────────────────────
 function RadarChart({ dimensions }: { dimensions: Dimension[] }) {
   const size = 280;
+  const padding = 40; // breathing room for labels outside the chart
   const center = size / 2;
   const radius = size / 2 - 30;
   const angleStep = (Math.PI * 2) / dimensions.length;
@@ -462,8 +463,14 @@ function RadarChart({ dimensions }: { dimensions: Dimension[] }) {
   // Concentric grid rings (25, 50, 75, 100)
   const rings = [0.25, 0.5, 0.75, 1.0];
 
+  // viewBox extended on both axes so corner labels never clip
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+    <svg
+      viewBox={`${-padding} ${-padding} ${size + padding * 2} ${size + padding * 2}`}
+      width={size}
+      height={size}
+      style={{ overflow: "visible" }}
+    >
       {/* Grid rings */}
       {rings.map((r, i) => {
         const points = Array.from({ length: dimensions.length }, (_, j) => {
@@ -513,22 +520,33 @@ function RadarChart({ dimensions }: { dimensions: Dimension[] }) {
         <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="var(--acc)" />
       ))}
 
-      {/* Labels */}
-      {dataPoints.map((p, i) => (
-        <text
-          key={i}
-          x={p.labelX}
-          y={p.labelY}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize="9"
-          fontFamily="var(--font-mono)"
-          fill="var(--ink-3)"
-          style={{ textTransform: "uppercase", letterSpacing: "0.08em" }}
-        >
-          {p.label.split(" ")[0]}
-        </text>
-      ))}
+      {/* Labels — anchor side decided by horizontal position so they hug the chart */}
+      {dataPoints.map((p, i) => {
+        // Label content: first word, but keep "Answer structure" full since "structure" is too generic alone
+        const fullLabel = p.label;
+        const shortLabel =
+          fullLabel.toLowerCase().includes("structure")
+            ? "STRUCTURE"
+            : fullLabel.split(" ")[0].toUpperCase();
+        // Anchor based on which side of center the label sits
+        const dx = p.labelX - center;
+        const anchor = dx < -10 ? "end" : dx > 10 ? "start" : "middle";
+        return (
+          <text
+            key={i}
+            x={p.labelX}
+            y={p.labelY}
+            textAnchor={anchor}
+            dominantBaseline="middle"
+            fontSize="9"
+            fontFamily="var(--font-mono)"
+            fill="var(--ink-3)"
+            style={{ letterSpacing: "0.08em" }}
+          >
+            {shortLabel}
+          </text>
+        );
+      })}
     </svg>
   );
 }

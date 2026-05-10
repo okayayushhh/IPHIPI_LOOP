@@ -192,18 +192,21 @@ export function InterviewScreen({
     [sessionId, elapsed, speech],
   );
 
-  // Push-to-talk handlers
-  const handleTalkStart = () => {
-    if (speech.state === "speaking") speech.cancelSpeak();
-    talkStartTimeRef.current = Date.now();
-    speech.startListening();
-  };
-  const handleTalkEnd = () => {
-    const finalText = speech.stopListening();
-    const durationSec = (Date.now() - talkStartTimeRef.current) / 1000;
-    if (finalText.trim()) {
-      sessionStatsRef.current.totalDurationSec += durationSec;
-      submitAnswer(finalText);
+  // Toggle-to-talk: click once to start, click again to stop + submit
+  const handleTalkToggle = () => {
+    if (speech.state === "listening") {
+      // Currently recording → stop and submit
+      const finalText = speech.stopListening();
+      const durationSec = (Date.now() - talkStartTimeRef.current) / 1000;
+      if (finalText.trim()) {
+        sessionStatsRef.current.totalDurationSec += durationSec;
+        submitAnswer(finalText);
+      }
+    } else {
+      // Not recording → start
+      if (speech.state === "speaking") speech.cancelSpeak();
+      talkStartTimeRef.current = Date.now();
+      speech.startListening();
     }
   };
 
@@ -437,16 +440,10 @@ export function InterviewScreen({
             </div>
           </div>
 
-          {/* Push-to-talk */}
+         {/* Toggle-to-talk */}
           {!interviewComplete && (
             <button
-              onMouseDown={handleTalkStart}
-              onMouseUp={handleTalkEnd}
-              onMouseLeave={() => {
-                if (speech.state === "listening") handleTalkEnd();
-              }}
-              onTouchStart={handleTalkStart}
-              onTouchEnd={handleTalkEnd}
+              onClick={handleTalkToggle}
               disabled={!speech.isSupported || speech.state === "speaking" || speech.state === "thinking"}
               className="btn btn-pri"
               style={{
@@ -459,18 +456,40 @@ export function InterviewScreen({
                 borderColor:
                   speech.state === "listening" ? "var(--bad)" : "var(--acc)",
                 cursor: !speech.isSupported ? "not-allowed" : "pointer",
+                animation:
+                  speech.state === "listening"
+                    ? "pulseRec 1.5s ease-in-out infinite"
+                    : "none",
               }}
             >
-              {speech.state === "listening"
-                ? "● Recording… release to submit"
-                : speech.state === "speaking"
-                ? "Mira is speaking…"
-                : speech.state === "thinking"
-                ? "Scoring your answer…"
-                : "Hold to speak"}
+              {speech.state === "listening" ? (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: "white",
+                      animation: "blink 1s ease-in-out infinite",
+                    }}
+                  />
+                  Recording — click to stop & submit
+                </span>
+              ) : speech.state === "speaking" ? (
+                "Mira is speaking…"
+              ) : speech.state === "thinking" ? (
+                "Scoring your answer…"
+              ) : (
+                "Click to start recording"
+              )}
             </button>
           )}
-
           {!speech.isSupported && (
             <div style={{ fontSize: 10, color: "var(--bad)", textAlign: "center" }}>
               Browser doesn't support speech recognition. Use Chrome.
