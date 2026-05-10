@@ -9,7 +9,7 @@ from app.agents.question_generator import generate_question
 from app.agents.answer_evaluator import evaluate_answer
 from app.services.feedback_synthesizer import synthesize_feedback
 from app.models.feedback import FeedbackReport
-
+from app.services.db_store import save_session, list_sessions, get_session_full
 
 router = APIRouter(prefix="/api/interview", tags=["interview"])
 
@@ -174,6 +174,21 @@ async def submit_answer(req: SubmitAnswerRequest):
     )
 
 
+@router.get("/history")
+async def get_history(limit: int = 20):
+    """List past sessions, newest first."""
+    return {"sessions": list_sessions(limit=limit)}
+
+
+@router.get("/history/{session_id}")
+async def get_history_session(session_id: str):
+    """Fetch a single past session's full feedback."""
+    data = get_session_full(session_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Session not found in history")
+    return data
+
+
 @router.get("/{session_id}")
 async def get_session(session_id: str):
     """Fetch full session state — for feedback report later."""
@@ -219,5 +234,11 @@ async def get_feedback(session_id: str, multimodal: MultimodalAvgsRequest | None
     # Mark session complete
     state.status = "completed"
     sessions.save(state)
+
+    # Persist to SQLite for history tracking — non-fatal on failure
+    try:
+        save_session(session_id, state, report)
+    except Exception as e:
+        print(f"[/feedback] Warning: could not persist session: {e}")
 
     return report
