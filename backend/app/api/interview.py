@@ -9,6 +9,7 @@ from app.agents.question_generator import generate_question
 from app.agents.answer_evaluator import evaluate_answer
 from app.services.feedback_synthesizer import synthesize_feedback
 from app.models.feedback import FeedbackReport
+from app.models.personalities import PersonalityId, PERSONALITIES
 from app.services.db_store import save_session, list_sessions, get_session_full
 
 router = APIRouter(prefix="/api/interview", tags=["interview"])
@@ -19,6 +20,7 @@ class StartSessionRequest(BaseModel):
     resume: ResumeParseResult
     target_role: InferredRole
     max_questions: int = 6  # tighter default for hackathon demos
+    personality: PersonalityId = PersonalityId.MIRA
 
 
 class StartSessionResponse(BaseModel):
@@ -66,6 +68,7 @@ async def start_session(req: StartSessionRequest):
         resume=req.resume,
         target_role=req.target_role,
         max_questions=req.max_questions,
+        personality=req.personality,
         last_decision="Session started — generating warmup question.",
     )
 
@@ -172,6 +175,23 @@ async def submit_answer(req: SubmitAnswerRequest):
         state_summary=_state_summary(state),
         is_complete=is_complete,
     )
+
+
+@router.get("/personalities")
+async def list_personalities():
+    """Public list of available interviewer personalities."""
+    return {
+        "personalities": [
+            {
+                "id": p.id.value,
+                "name": p.name,
+                "role_label": p.role_label,
+                "tagline": p.tagline,
+                "color_accent": p.color_accent,
+            }
+            for p in PERSONALITIES.values()
+        ]
+    }
 
 
 @router.get("/history")

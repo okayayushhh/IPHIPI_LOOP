@@ -4,6 +4,7 @@ import random
 import uuid
 from app.services.gemini_client import gemini
 from app.models.interview import InterviewState, Question
+from app.models.personalities import PersonalityId, PERSONALITIES
 
 
 ENCOURAGEMENT_PREFIXES = [
@@ -12,6 +13,9 @@ ENCOURAGEMENT_PREFIXES = [
     "Totally fine. Let's pivot to something you might find easier — ",
     "Take a breath. Here's a different question — ",
 ]
+
+# Marcus stays cold — no validation, just a curt redirect.
+MARCUS_HARDER_PROBE_PREFIX = "Let me dig into the basics — "
 
 
 QUESTION_INTENT_GUIDE = {
@@ -29,6 +33,7 @@ QUESTION_INTENT_GUIDE = {
 def _build_prompt(state: InterviewState) -> str:
     """Construct a prompt that gives Gemini all the context it needs."""
 
+    personality = PERSONALITIES[state.personality]
     n = len(state.questions)
     intent = QUESTION_INTENT_GUIDE.get(n + 1, "technical")
 
@@ -45,7 +50,9 @@ def _build_prompt(state: InterviewState) -> str:
     gaps_str = ", ".join(state.target_role.gaps)
     why_str = " · ".join(state.target_role.why[:2])
 
-    return f"""You are a senior technical interviewer running a mock interview.
+    return f"""{personality.tone_directive}
+
+You are running a mock interview in this persona. Stay in character.
 
 CANDIDATE
 - Name: {state.resume.name}
@@ -93,7 +100,11 @@ def generate_question(state: InterviewState) -> Question:
 
     text = data["text"]
     if state.needs_encouragement and text:
-        prefix = random.choice(ENCOURAGEMENT_PREFIXES)
+        if state.personality == PersonalityId.MARCUS:
+            # Marcus never softens — uses a cold redirect instead.
+            prefix = MARCUS_HARDER_PROBE_PREFIX
+        else:
+            prefix = random.choice(ENCOURAGEMENT_PREFIXES)
         text = prefix + text[0].lower() + text[1:]
         # Consume the flag so the prefix doesn't repeat unless the next score is also low.
         state.needs_encouragement = False

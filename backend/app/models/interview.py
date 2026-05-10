@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, Literal
 from datetime import datetime
 from app.models.resume import ResumeParseResult, InferredRole
+from app.models.personalities import PersonalityId
 
 
 # ─── Question + answer types ────────────────────────────────
@@ -75,4 +76,10 @@ class InterviewState(BaseModel):
     difficulty_history: list[int] = Field(
         default_factory=list,
         description="Difficulty level used for each question asked, in order — for the frontend sparkline.",
+    )
+
+    # Personality selection
+    personality: PersonalityId = Field(
+        default=PersonalityId.MIRA,
+        description="Which interviewer personality is conducting this session.",
     )
