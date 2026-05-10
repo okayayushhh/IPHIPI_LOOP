@@ -24,6 +24,7 @@ type StateSummary = {
   topics_covered: string[];
   last_decision: string | null;
   status: string;
+  difficulty_history: number[];
 };
 
 type ScoreResult = {
@@ -39,6 +40,9 @@ export type MultimodalAvgs = {
   posture: number;
   engagement: number;
   stress: number;
+  filler_words_per_answer: number;
+  avg_words_per_answer: number;
+  avg_words_per_minute: number;
 };
 
 export function InterviewScreen({
@@ -66,6 +70,13 @@ export function InterviewScreen({
     stress: 0,
     samples: 0,
   });
+  const sessionStatsRef = useRef({
+    totalFillers: 0,
+    totalWords: 0,
+    totalDurationSec: 0,
+    answerCount: 0,
+  });
+  const talkStartTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!multimodal.scores.faceDetected) return;
@@ -127,6 +138,13 @@ export function InterviewScreen({
     async (answerText: string) => {
       if (!answerText.trim()) return;
 
+      // Session stats — fillers + word count
+      const fillerCount = speech.countFillers(answerText);
+      const wordCount = answerText.trim().split(/\s+/).length;
+      sessionStatsRef.current.totalFillers += fillerCount;
+      sessionStatsRef.current.totalWords += wordCount;
+      sessionStatsRef.current.answerCount += 1;
+
       // Add user turn to transcript
       const time = formatTime(elapsed);
       setTranscript((t) => [...t, { who: "user", text: answerText, time }]);
@@ -177,11 +195,14 @@ export function InterviewScreen({
   // Push-to-talk handlers
   const handleTalkStart = () => {
     if (speech.state === "speaking") speech.cancelSpeak();
+    talkStartTimeRef.current = Date.now();
     speech.startListening();
   };
   const handleTalkEnd = () => {
     const finalText = speech.stopListening();
+    const durationSec = (Date.now() - talkStartTimeRef.current) / 1000;
     if (finalText.trim()) {
+      sessionStatsRef.current.totalDurationSec += durationSec;
       submitAnswer(finalText);
     }
   };
@@ -229,11 +250,25 @@ export function InterviewScreen({
               speech.cancelSpeak();
               const s = multimodalSumRef.current;
               const n = Math.max(1, s.samples);
+              const stats = sessionStatsRef.current;
+              const wpm =
+                stats.totalDurationSec > 0
+                  ? (stats.totalWords / stats.totalDurationSec) * 60
+                  : 130;
               onEndInterview({
                 eye_contact: s.eyeContact / n,
                 posture: s.posture / n,
                 engagement: s.engagement / n,
                 stress: s.stress / n,
+                filler_words_per_answer:
+                  stats.answerCount > 0
+                    ? stats.totalFillers / stats.answerCount
+                    : 0,
+                avg_words_per_answer:
+                  stats.answerCount > 0
+                    ? stats.totalWords / stats.answerCount
+                    : 0,
+                avg_words_per_minute: wpm,
               });
             }}
           >
@@ -454,11 +489,25 @@ export function InterviewScreen({
               onClick={() => {
                 const s = multimodalSumRef.current;
                 const n = Math.max(1, s.samples);
+                const stats = sessionStatsRef.current;
+                const wpm =
+                  stats.totalDurationSec > 0
+                    ? (stats.totalWords / stats.totalDurationSec) * 60
+                    : 130;
                 onEndInterview({
                   eye_contact: s.eyeContact / n,
                   posture: s.posture / n,
                   engagement: s.engagement / n,
                   stress: s.stress / n,
+                  filler_words_per_answer:
+                    stats.answerCount > 0
+                      ? stats.totalFillers / stats.answerCount
+                      : 0,
+                  avg_words_per_answer:
+                    stats.answerCount > 0
+                      ? stats.totalWords / stats.answerCount
+                      : 0,
+                  avg_words_per_minute: wpm,
                 });
               }}
             >
@@ -499,6 +548,28 @@ export function InterviewScreen({
                 value={(stateSummary.technical_running_avg * 100).toFixed(0)}
               />
             </div>
+            {stateSummary.difficulty_history.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 10,
+                }}
+              >
+                <span
+                  className="uppercase mono"
+                  style={{
+                    fontSize: 9,
+                    color: "var(--ink-4)",
+                    letterSpacing: ".15em",
+                  }}
+                >
+                  Trajectory
+                </span>
+                <DifficultySparkline history={stateSummary.difficulty_history} />
+              </div>
+            )}
             <div
               style={{
                 fontSize: 11,
@@ -700,5 +771,53 @@ function Stat({ label, value }: { label: string; value: string | number }) {
         {value}
       </span>
     </div>
+  );
+}
+
+function DifficultySparkline({ history }: { history: number[] }) {
+  const W = 120;
+  const H = 24;
+  const PAD = 2;
+  const n = history.length;
+  // Map difficulty 1..5 to y; 5 sits at the top.
+  const yFor = (d: number) => {
+    const clamped = Math.max(1, Math.min(5, d));
+    return PAD + ((5 - clamped) / 4) * (H - PAD * 2);
+  };
+  const xFor = (i: number) => {
+    if (n <= 1) return W / 2;
+    return PAD + (i / (n - 1)) * (W - PAD * 2);
+  };
+
+  const points = history.map((d, i) => `${xFor(i)},${yFor(d)}`).join(" ");
+
+  return (
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      style={{ display: "block" }}
+      aria-label="Difficulty trajectory"
+    >
+      {n > 1 && (
+        <polyline
+          points={points}
+          fill="none"
+          stroke="var(--acc)"
+          strokeWidth={1.4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+      {history.map((d, i) => (
+        <circle
+          key={i}
+          cx={xFor(i)}
+          cy={yFor(d)}
+          r={i === n - 1 ? 3 : 2}
+          fill="var(--acc)"
+        />
+      ))}
+    </svg>
   );
 }

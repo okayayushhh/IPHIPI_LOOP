@@ -2,6 +2,23 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
+const FILLER_WORDS = [
+  "um", "uh", "like", "you know", "actually", "basically",
+  "literally", "i mean", "kind of", "sort of",
+];
+
+function countFillers(text: string): number {
+  if (!text) return 0;
+  const lower = text.toLowerCase();
+  let count = 0;
+  for (const filler of FILLER_WORDS) {
+    const regex = new RegExp(`\\b${filler}\\b`, "g");
+    const matches = lower.match(regex);
+    if (matches) count += matches.length;
+  }
+  return count;
+}
+
 type SpeechState = "idle" | "listening" | "speaking" | "thinking";
 
 export function useSpeech() {
@@ -165,5 +182,6 @@ export function useSpeech() {
     stopListening,
     speak,
     cancelSpeak,
+    countFillers,
   };
 }

@@ -42,7 +42,15 @@ export function FeedbackScreen({
   setRoute,
 }: {
   sessionId: string;
-  multimodalAvgs: { eye_contact: number; posture: number; engagement: number; stress: number };
+  multimodalAvgs: {
+    eye_contact: number;
+    posture: number;
+    engagement: number;
+    stress: number;
+    filler_words_per_answer: number;
+    avg_words_per_answer: number;
+    avg_words_per_minute: number;
+  };
   setRoute: (r: Route) => void;
 }) {
   const [report, setReport] = useState<FeedbackReport | null>(null);

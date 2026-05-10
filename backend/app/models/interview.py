@@ -66,3 +66,13 @@ class InterviewState(BaseModel):
         default=None,
         description="Why the orchestrator chose its last action — for explainability",
     )
+
+    # Adaptive flags
+    needs_encouragement: bool = Field(
+        default=False,
+        description="Set after a low-scoring answer so the next question opens with a softer tone.",
+    )
+    difficulty_history: list[int] = Field(
+        default_factory=list,
+        description="Difficulty level used for each question asked, in order — for the frontend sparkline.",
+    )

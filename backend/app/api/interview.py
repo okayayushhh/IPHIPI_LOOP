@@ -51,6 +51,7 @@ def _state_summary(state: InterviewState) -> dict:
         "topics_covered": state.topics_covered,
         "last_decision": state.last_decision,
         "status": state.status,
+        "difficulty_history": state.difficulty_history,
     }
 
 
@@ -76,6 +77,7 @@ async def start_session(req: StartSessionRequest):
 
     state.questions.append(first_q)
     state.topics_covered.append(first_q.topic)
+    state.difficulty_history.append(first_q.difficulty)
     sessions.save(state)
 
     return StartSessionResponse(
@@ -115,13 +117,21 @@ async def submit_answer(req: SubmitAnswerRequest):
     state.technical_running_avg = sum(all_scores) / len(all_scores)
 
     # Adaptive difficulty (the agentic decision)
-    if score.overall < 0.4 and state.current_difficulty > 1:
-        new_diff = max(1, state.current_difficulty - 1)
-        state.last_decision = (
-            f"Scored {score.overall:.2f} on '{last_q.topic}' — struggled. "
-            f"Dropping difficulty {state.current_difficulty}→{new_diff}, shifting to fundamentals."
-        )
-        state.current_difficulty = new_diff
+    if score.overall < 0.4:
+        state.needs_encouragement = True
+        if state.current_difficulty > 1:
+            new_diff = max(1, state.current_difficulty - 1)
+            state.last_decision = (
+                f"Scored {score.overall:.2f} on '{last_q.topic}' — struggled. "
+                f"Dropping difficulty {state.current_difficulty}→{new_diff}, "
+                f"softening tone, shifting to fundamentals."
+            )
+            state.current_difficulty = new_diff
+        else:
+            state.last_decision = (
+                f"Scored {score.overall:.2f} on '{last_q.topic}' — struggled. "
+                f"Already at floor difficulty — softening tone and pivoting angle."
+            )
     elif score.overall > 0.8 and state.current_difficulty < 5:
         new_diff = min(5, state.current_difficulty + 1)
         state.last_decision = (
@@ -129,10 +139,12 @@ async def submit_answer(req: SubmitAnswerRequest):
             f"Ramping difficulty {state.current_difficulty}→{new_diff}."
         )
         state.current_difficulty = new_diff
+        state.needs_encouragement = False
     else:
         state.last_decision = (
             f"Scored {score.overall:.2f}. Holding difficulty at {state.current_difficulty}."
         )
+        state.needs_encouragement = False
 
     # End or continue?
     is_complete = len(state.questions) >= state.max_questions
@@ -142,6 +154,7 @@ async def submit_answer(req: SubmitAnswerRequest):
         try:
             nq = generate_question(state)
             state.questions.append(nq)
+            state.difficulty_history.append(nq.difficulty)
             if nq.topic not in state.topics_covered:
                 state.topics_covered.append(nq.topic)
             next_q = nq.model_dump(mode="json")
@@ -174,6 +187,9 @@ class MultimodalAvgsRequest(BaseModel):
     posture: float = 0.7
     engagement: float = 0.7
     stress: float = 0.3
+    filler_words_per_answer: float = 0.0
+    avg_words_per_answer: float = 0.0
+    avg_words_per_minute: float = 130.0
 
 
 @router.post("/{session_id}/feedback", response_model=FeedbackReport)

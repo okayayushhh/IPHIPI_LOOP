@@ -1,8 +1,17 @@
 """Generates the next interview question based on session state."""
 import json
+import random
 import uuid
 from app.services.gemini_client import gemini
 from app.models.interview import InterviewState, Question
+
+
+ENCOURAGEMENT_PREFIXES = [
+    "No worries — let's try a different angle. ",
+    "That's a tough one. Let me ask something more grounded — ",
+    "Totally fine. Let's pivot to something you might find easier — ",
+    "Take a breath. Here's a different question — ",
+]
 
 
 QUESTION_INTENT_GUIDE = {
@@ -82,9 +91,16 @@ def generate_question(state: InterviewState) -> Question:
     raw = gemini.generate_json(prompt, temperature=0.7, max_tokens=500)
     data = json.loads(raw)
 
+    text = data["text"]
+    if state.needs_encouragement and text:
+        prefix = random.choice(ENCOURAGEMENT_PREFIXES)
+        text = prefix + text[0].lower() + text[1:]
+        # Consume the flag so the prefix doesn't repeat unless the next score is also low.
+        state.needs_encouragement = False
+
     return Question(
         id=str(uuid.uuid4())[:8],
-        text=data["text"],
+        text=text,
         topic=data.get("topic", "general"),
         difficulty=state.current_difficulty,
         intent=data.get("intent", "technical"),

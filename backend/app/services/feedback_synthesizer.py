@@ -50,11 +50,14 @@ INTERVIEW SESSION ({len(state.questions)} questions, {len(state.answers)} answer
 
 {behavioral_section}
 
-MULTIMODAL OBSERVATIONS (averaged across the session, 0-1 scale)
-- Eye contact average: {multimodal_avgs.get('eye_contact', 0.7):.2f}
-- Posture average: {multimodal_avgs.get('posture', 0.7):.2f}
-- Engagement average: {multimodal_avgs.get('engagement', 0.7):.2f}
-- Stress average: {multimodal_avgs.get('stress', 0.3):.2f}
+MULTIMODAL & SPEECH OBSERVATIONS (measured across session)
+- Eye contact average: {multimodal_avgs.get('eye_contact', 0.7):.2f} (0-1 scale)
+- Posture average: {multimodal_avgs.get('posture', 0.7):.2f} (0-1 scale)
+- Engagement average: {multimodal_avgs.get('engagement', 0.7):.2f} (0-1 scale)
+- Stress average: {multimodal_avgs.get('stress', 0.3):.2f} (0-1 scale)
+- Filler words per answer: {multimodal_avgs.get('filler_words_per_answer', 0):.1f} (target <2)
+- Avg words per answer: {multimodal_avgs.get('avg_words_per_answer', 0):.0f} (sub-30 = too brief, 60-150 = ideal, 200+ = rambling)
+- Speaking pace: {multimodal_avgs.get('avg_words_per_minute', 130):.0f} WPM (90-110 = slow, 110-150 = natural, 150-180 = energetic, 180+ = rushed)
 
 YOUR TASK
 Write a structured feedback report. Be honest — this is for the candidate's growth.
@@ -97,7 +100,7 @@ Return JSON only matching this exact schema:
 
 SCORING RULES
 - overall_score: weighted avg of dimensions (technical 30%, communication 20%, confidence 15%, engagement 15%, structure 20%)
-- "confidence" should consider: did they say "um" / "I don't know" frequently? did they hedge? did average answer score swing wildly?
+- "confidence" should consider: filler word count above (high = low confidence), hedging language ("I think maybe", "kind of"), and whether they admitted "I don't know" without offering reasoning. Score harshly if filler_words_per_answer > 4.
 - "engagement" should reference the multimodal eye-contact + posture averages above
 - "structure" comes from STAR analysis quality
 - Severity: "high" = blocks them from the role; "med" = needs work; "low" = polish

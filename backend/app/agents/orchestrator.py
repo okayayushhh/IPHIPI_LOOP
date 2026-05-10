@@ -22,6 +22,9 @@ def node_generate_question(state: InterviewState) -> dict:
         "topics_covered": state.topics_covered + [question.topic]
         if question.topic not in state.topics_covered
         else state.topics_covered,
+        "difficulty_history": state.difficulty_history + [question.difficulty],
+        # generate_question consumed/cleared the encouragement flag
+        "needs_encouragement": False,
     }
 
 
@@ -64,13 +67,21 @@ def node_evaluate_and_route(state: InterviewState) -> dict:
     new_difficulty = state.current_difficulty
     decision_reason = ""
 
-    if score.overall < 0.4 and state.current_difficulty > 1:
-        new_difficulty = max(1, state.current_difficulty - 1)
-        decision_reason = (
-            f"Candidate scored {score.overall:.2f} on '{last_q.topic}' (struggled). "
-            f"Dropping difficulty {state.current_difficulty}→{new_difficulty} and "
-            f"shifting to fundamentals."
-        )
+    needs_encouragement = False
+    if score.overall < 0.4:
+        needs_encouragement = True
+        if state.current_difficulty > 1:
+            new_difficulty = max(1, state.current_difficulty - 1)
+            decision_reason = (
+                f"Candidate scored {score.overall:.2f} on '{last_q.topic}' (struggled). "
+                f"Dropping difficulty {state.current_difficulty}→{new_difficulty}, "
+                f"softening tone, and shifting to fundamentals."
+            )
+        else:
+            decision_reason = (
+                f"Candidate scored {score.overall:.2f} on '{last_q.topic}' (struggled). "
+                f"Already at floor difficulty — softening tone and pivoting to a different angle."
+            )
     elif score.overall > 0.8 and state.current_difficulty < 5:
         new_difficulty = min(5, state.current_difficulty + 1)
         decision_reason = (
@@ -88,6 +99,7 @@ def node_evaluate_and_route(state: InterviewState) -> dict:
         "current_difficulty": new_difficulty,
         "technical_running_avg": new_tech_avg,
         "last_decision": decision_reason,
+        "needs_encouragement": needs_encouragement,
     }
 
 

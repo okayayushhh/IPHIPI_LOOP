@@ -21,6 +21,7 @@ type StateSummary = {
   topics_covered: string[];
   last_decision: string | null;
   status: string;
+  difficulty_history: number[];
 };
 
 export default function Home() {
@@ -37,6 +38,9 @@ export default function Home() {
     posture: 0.7,
     engagement: 0.7,
     stress: 0.3,
+    filler_words_per_answer: 0,
+    avg_words_per_answer: 0,
+    avg_words_per_minute: 130,
   });
   return (
     <div className="app">
