@@ -1,0 +1,41 @@
+{
+    "score": {
+        "correctness": 0.5,
+        "depth": 0.3,
+        "structure": 0.3,
+        "overall": 0.37,
+        "rationale": "The candidate correctly identified the project but provided a very vague and unfocused answer about challenges, mentioning general programming difficulties rather than specific technical hurdles in the computer vision pipeline.",
+        "keywords_hit": [
+            "CNN model",
+            "Python developer",
+            "API errors"
+        ]
+    },
+    "next_question": {
+        "id": "a7b9552d",
+        "text": "That's a tough one. Let me ask something more grounded — that's a good start, Ayush. It sounds like you encountered some common hurdles when first diving into Python and building complex systems. Let's shift gears slightly. For the 'Item Detection using Computer Vision' project, can you describe the specific type of CNN architecture you used and why you chose it?",
+        "topic": "cnn-architecture-choice",
+        "difficulty": 1,
+        "intent": "technical",
+        "asked_at": "2026-05-11T01:59:40.674312"
+    },
+    "last_decision": "Scored 0.37 on 'project-deep-dive' — struggled. Dropping difficulty 2→1, softening tone, shifting to fundamentals.",
+    "state_summary": {
+        "session_id": "b451d10f",
+        "questions_asked": 2,
+        "max_questions": 6,
+        "current_difficulty": 1,
+        "technical_running_avg": 0.37,
+        "topics_covered": [
+            "project-deep-dive",
+            "cnn-architecture-choice"
+        ],
+        "last_decision": "Scored 0.37 on 'project-deep-dive' — struggled. Dropping difficulty 2→1, softening tone, shifting to fundamentals.",
+        "status": "active",
+        "difficulty_history": [
+            2,
+            1
+        ]
+    },
+    "is_complete": false
+}

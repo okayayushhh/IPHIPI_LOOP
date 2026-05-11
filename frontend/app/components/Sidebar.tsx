@@ -5,6 +5,7 @@ import { clsx } from "clsx";
 type Route =
   | "landing"
   | "roles"
+  | "personality"
   | "setup"
   | "interview"
   | "feedback"
@@ -12,23 +13,29 @@ type Route =
   | "history";
 
 const FLOW: { id: Route; num: string; label: string }[] = [
-  { id: "landing",   num: "01", label: "Upload" },
-  { id: "roles",     num: "02", label: "Roles" },
-  { id: "setup",     num: "03", label: "Camera" },
-  { id: "interview", num: "04", label: "Interview" },
-  { id: "feedback",  num: "05", label: "Feedback" },
-  { id: "jobs",      num: "06", label: "Jobs" },
-  { id: "history",   num: "07", label: "History" },
+  { id: "landing",     num: "01", label: "Upload" },
+  { id: "roles",       num: "02", label: "Roles" },
+  { id: "personality", num: "03", label: "Interviewer" },
+  { id: "interview",   num: "04", label: "Interview" },
+  { id: "feedback",    num: "05", label: "Feedback" },
+  { id: "jobs",        num: "06", label: "Jobs" },
+  { id: "history",     num: "07", label: "History" },
 ];
+
+// `setup` is a transient confirmation step — light up the Interviewer slot.
+const SLOT_FOR_SETUP: Route = "personality";
 
 export function Sidebar({
   route,
   setRoute,
+  userName,
 }: {
   route: Route;
   setRoute: (r: Route) => void;
+  userName?: string;
 }) {
-  const activeIdx = FLOW.findIndex((f) => f.id === route);
+  const effectiveRoute = route === "setup" ? SLOT_FOR_SETUP : route;
+  const activeIdx = FLOW.findIndex((f) => f.id === effectiveRoute);
 
   return (
     <aside
@@ -74,7 +81,7 @@ export function Sidebar({
       </div>
       <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {FLOW.map((it, i) => {
-          const active = route === it.id;
+          const active = effectiveRoute === it.id;
           const done = activeIdx > i;
           return (
             <button
@@ -142,10 +149,12 @@ export function Sidebar({
           >
             ?
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 12, fontWeight: 500 }}>Guest</span>
-            <span style={{ fontSize: 10, color: "var(--ink-4)" }}>Hackathon build · v0.1</span>
-          </div>
+          <div style={{ fontWeight: 500 }}>
+  {userName ?? "Guest"}
+</div>
+<div style={{ fontSize: 11, color: "var(--ink-4)" }}>
+  v1.0 · Loop
+</div>
         </div>
       </div>
     </aside>

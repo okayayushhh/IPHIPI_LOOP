@@ -35,6 +35,20 @@ type ScoreResult = {
   rationale: string;
 };
 
+type Persona = "mira" | "marcus" | "priya";
+
+const PERSONALITY_VOICES: Record<Persona, string[]> = {
+  mira: ["Samantha", "Karen", "Tessa", "Victoria"],
+  marcus: ["Daniel", "Alex", "Fred", "Bruce"],
+  priya: ["Tessa", "Karen", "Moira", "Veena"],
+};
+
+const PERSONALITY_NAMES: Record<Persona, string> = {
+  mira: "Mira",
+  marcus: "Marcus",
+  priya: "Priya",
+};
+
 export type MultimodalAvgs = {
   eye_contact: number;
   posture: number;
@@ -49,17 +63,21 @@ export function InterviewScreen({
   sessionId,
   initialQuestion,
   initialState,
+  personality,
   setRoute,
   onEndInterview,
 }: {
   sessionId: string;
   initialQuestion: string;
   initialState: StateSummary;
+  personality: Persona;
   setRoute: (r: Route) => void;
   onEndInterview: (avgs: MultimodalAvgs) => void;
 }) {
   // Voice
   const speech = useSpeech();
+  const voiceList = PERSONALITY_VOICES[personality];
+  const personaName = PERSONALITY_NAMES[personality];
 
   const multimodal = useMultimodal();
   // Track multimodal session averages so we can pass them to the feedback report
@@ -122,7 +140,7 @@ export function InterviewScreen({
     if (!spokeFirstRef.current && initialQuestion) {
       spokeFirstRef.current = true;
       // small delay so the page has time to render first
-      setTimeout(() => speech.speak(initialQuestion), 500);
+      setTimeout(() => speech.speak(initialQuestion, { voiceList }), 500);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuestion]);
@@ -174,7 +192,7 @@ export function InterviewScreen({
             ...t,
             { who: "agent", text: wrapText, time: formatTime(elapsed) },
           ]);
-          speech.speak(wrapText);
+          speech.speak(wrapText, { voiceList });
         } else if (data.next_question) {
           const nextQ = data.next_question.text;
           setCurrentQuestion(nextQ);
@@ -182,14 +200,14 @@ export function InterviewScreen({
             ...t,
             { who: "agent", text: nextQ, time: formatTime(elapsed) },
           ]);
-          speech.speak(nextQ);
+          speech.speak(nextQ, { voiceList });
         }
       } catch (e) {
         console.error("Answer submit failed:", e);
         speech.setState("idle");
       }
     },
-    [sessionId, elapsed, speech],
+    [sessionId, elapsed, speech, voiceList],
   );
 
   // Toggle-to-talk: click once to start, click again to stop + submit
@@ -402,13 +420,13 @@ export function InterviewScreen({
                 letterSpacing: ".15em",
               }}
             >
-              Mira · interviewer
+              {personaName} · interviewer
             </span>
           </div>
 
-          <AgentPersona state={speech.state} size={180} />
+          <AgentPersona state={speech.state} size={180} personality={personality} />
 
-          <StateLabel state={speech.state} />
+          <StateLabel state={speech.state} personality={personality} />
 
           <div
             className="card"
@@ -482,7 +500,7 @@ export function InterviewScreen({
                   Recording — click to stop & submit
                 </span>
               ) : speech.state === "speaking" ? (
-                "Mira is speaking…"
+                `${personaName} is speaking…`
               ) : speech.state === "thinking" ? (
                 "Scoring your answer…"
               ) : (
@@ -689,7 +707,7 @@ export function InterviewScreen({
                       letterSpacing: ".15em",
                     }}
                   >
-                    {m.who === "agent" ? "Mira" : "You"}
+                    {m.who === "agent" ? personaName : "You"}
                   </span>
                   <span
                     style={{

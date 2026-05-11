@@ -134,35 +134,62 @@ export function useSpeech() {
     return transcriptRef.current;
   }, []);
 
-  // Speak — agent says a question out loud
-  const speak = useCallback((text: string, onDone?: () => void) => {
-    if (typeof window === "undefined" || !window.speechSynthesis) {
-      onDone?.();
-      return;
-    }
-    window.speechSynthesis.cancel();
+  // Speak — agent says a question out loud.
+  // Backwards-compatible: the second arg can be a callback (legacy) OR an
+  // options object { voiceList, onDone }.
+  const speak = useCallback(
+    (
+      text: string,
+      optionsOrOnDone?:
+        | (() => void)
+        | { voiceList?: string[]; onDone?: () => void },
+    ) => {
+      if (typeof window === "undefined" || !window.speechSynthesis) {
+        if (typeof optionsOrOnDone === "function") optionsOrOnDone();
+        else optionsOrOnDone?.onDone?.();
+        return;
+      }
+      const options =
+        typeof optionsOrOnDone === "function"
+          ? { onDone: optionsOrOnDone }
+          : optionsOrOnDone ?? {};
 
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 1.0;
-    utter.pitch = 1.05;
-    utter.volume = 1.0;
+      window.speechSynthesis.cancel();
 
-    const voices = window.speechSynthesis.getVoices();
-    const preferred =
-      voices.find((v) => v.name.includes("Samantha")) ??
-      voices.find((v) => v.name.includes("Karen")) ??
-      voices.find((v) => /female/i.test(v.name)) ??
-      voices.find((v) => v.lang.startsWith("en"));
-    if (preferred) utter.voice = preferred;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 1.0;
+      utter.pitch = 1.05;
+      utter.volume = 1.0;
 
-    utter.onstart = () => setState("speaking");
-    utter.onend = () => {
-      setState("idle");
-      onDone?.();
-    };
+      const voices = window.speechSynthesis.getVoices();
+      const list = options.voiceList ?? [
+        "Samantha",
+        "Karen",
+        "Tessa",
+        "Victoria",
+      ];
+      let preferred: SpeechSynthesisVoice | undefined;
+      for (const name of list) {
+        preferred = voices.find((v) => v.name.includes(name));
+        if (preferred) break;
+      }
+      if (!preferred) {
+        preferred =
+          voices.find((v) => /female/i.test(v.name)) ??
+          voices.find((v) => v.lang.startsWith("en"));
+      }
+      if (preferred) utter.voice = preferred;
 
-    window.speechSynthesis.speak(utter);
-  }, []);
+      utter.onstart = () => setState("speaking");
+      utter.onend = () => {
+        setState("idle");
+        options.onDone?.();
+      };
+
+      window.speechSynthesis.speak(utter);
+    },
+    [],
+  );
 
   const cancelSpeak = useCallback(() => {
     if (typeof window !== "undefined" && window.speechSynthesis) {

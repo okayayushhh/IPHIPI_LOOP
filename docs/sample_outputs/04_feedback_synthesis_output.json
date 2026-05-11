@@ -1,0 +1,88 @@
+{
+    "overall_score": 38,
+    "headline": "You have foundational project experience but need to deepen your technical communication.",
+    "summary": "Your resume highlights relevant projects, but your interview responses lacked depth and technical specificity. Focus on articulating challenges and solutions with concrete details to showcase your understanding and problem-solving abilities.",
+    "dimensions": [
+        {
+            "name": "technical",
+            "score": 30,
+            "label": "Technical correctness",
+            "rationale": "The candidate mentioned using PyTorch and CNNs, which is relevant, but failed to elaborate on technical challenges or solutions in the project. The answer about the computer vision project focused on general programming difficulties rather than specific ML or computer vision hurdles."
+        },
+        {
+            "name": "communication",
+            "score": 45,
+            "label": "Communication clarity",
+            "rationale": "The candidate's answer was vague and lacked specific technical details. While the language was understandable, it did not effectively convey the complexity or their role in overcoming challenges within the ML pipeline."
+        },
+        {
+            "name": "confidence",
+            "score": 70,
+            "label": "Vocal confidence",
+            "rationale": "The candidate used no filler words and spoke at a natural pace. While the content lacked depth, the delivery itself was not overly hesitant or lacking in confidence."
+        },
+        {
+            "name": "engagement",
+            "score": 53,
+            "label": "Engagement / eye contact",
+            "rationale": "Eye contact was below average (0.39), which can impact perceived engagement. Posture (0.88) and general engagement (0.67) were moderate."
+        },
+        {
+            "name": "structure",
+            "score": 30,
+            "label": "Answer structure",
+            "rationale": "The answer to the project question was unfocused and did not follow a clear structure like STAR. It jumped from the project name to general programming issues without clearly defining the situation, task, action, or result."
+        }
+    ],
+    "strengths": [
+        {
+            "title": "Relevant Project Experience",
+            "detail": "Resume highlights experience with end-to-end ML pipelines, including data preprocessing, model training (PyTorch, CNNs), and evaluation (mAP)."
+        },
+        {
+            "title": "Low Filler Word Usage",
+            "detail": "The candidate used 0.0 filler words per answer, indicating a focused delivery."
+        },
+        {
+            "title": "Good Posture",
+            "detail": "Demonstrated good posture throughout the interview session (average 0.88)."
+        }
+    ],
+    "improvements": [
+        {
+            "title": "Elaborate on Technical Challenges",
+            "detail": "When asked about challenges in the 'Item Detection using Computer Vision' project, the candidate stated, 'implementing the model the CNN model to identify the objects was very hard for me I was still learning to be a new python developer and I was facing Challenges on u-upi errors API errors callbacks and Etc.' This answer lacked specific technical details about the ML pipeline challenges.",
+            "severity": "high"
+        },
+        {
+            "title": "Provide Specific Project Details",
+            "detail": "The answer to the project question was vague. Instead of mentioning 'u-upi errors API errors callbacks', focus on specific challenges related to data quality, model architecture choices, hyperparameter tuning, or evaluation metrics.",
+            "severity": "high"
+        },
+        {
+            "title": "Improve Eye Contact",
+            "detail": "Average eye contact was low (0.39), which can detract from perceived engagement and confidence.",
+            "severity": "med"
+        },
+        {
+            "title": "Structure Answers with STAR",
+            "detail": "The response to the project question did not follow a clear Situation, Task, Action, Result structure, making it difficult to follow the candidate's experience and impact.",
+            "severity": "high"
+        }
+    ],
+    "star_analysis": [
+        {
+            "question": "Ayush, it's great to have you here. To get us started, could you tell me a bit about your 'Item Detection using Computer Vision' project and what you found most challenging about building that end-to-end pipeline?",
+            "situation": 0.3,
+            "task": 0.3,
+            "action": 0.3,
+            "result": 0.0,
+            "note": "The candidate identified the project but failed to clearly articulate the situation or task. The 'action' was described vaguely as general Python development struggles, and no 'result' or outcome was mentioned."
+        }
+    ],
+    "coaching_plan": [
+        "Spend 1 hour practicing the STAR method by outlining your resume projects. For each project, clearly define the Situation, Task, Action, and Result, focusing on specific technical details and quantifiable outcomes.",
+        "Dedicate 30 minutes to recording yourself answering common behavioral questions (e.g., 'Tell me about a challenging project'). Focus on delivering specific technical details about challenges and solutions, avoiding vague statements about general programming difficulties.",
+        "Practice answering technical questions about your projects by explaining the 'why' behind your technical choices (e.g., 'Why did you choose CNNs for this task?', 'What were the trade-offs?'). Aim to articulate these explanations clearly and concisely."
+    ]
+}

@@ -236,7 +236,7 @@ export function RolesScreen({
               className="btn btn-pri"
               onClick={() => {
                 onRoleSelected(pickedRole);
-                setRoute("setup");
+                setRoute("personality");
               }}
             >
               Interview for {pickedRole.title.split("(")[0].trim()} →

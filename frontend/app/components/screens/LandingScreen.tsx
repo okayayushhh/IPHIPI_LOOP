@@ -246,9 +246,9 @@ export function LandingScreen({
       className="pageEnter"
       style={{ maxWidth: 980, margin: "0 auto", padding: "56px 48px 48px" }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
-        <div className="chip chip-acc">v0.1 — Hackathon build</div>
-      </div>
+     <div className="chip" style={{ marginBottom: 14 }}>
+  v1.0 — built by Ayush
+</div>
 
       <h1
         className="serif"

@@ -1,0 +1,26 @@
+{
+    "session_id": "b451d10f",
+    "first_question": {
+        "id": "18ef16a9",
+        "text": "Ayush, it's great to have you here. To get us started, could you tell me a bit about your 'Item Detection using Computer Vision' project and what you found most challenging about building that end-to-end pipeline?",
+        "topic": "project-deep-dive",
+        "difficulty": 2,
+        "intent": "warmup",
+        "asked_at": "2026-05-11T01:58:22.858641"
+    },
+    "state_summary": {
+        "session_id": "b451d10f",
+        "questions_asked": 1,
+        "max_questions": 6,
+        "current_difficulty": 2,
+        "technical_running_avg": 0.0,
+        "topics_covered": [
+            "project-deep-dive"
+        ],
+        "last_decision": "Session started — generating warmup question.",
+        "status": "active",
+        "difficulty_history": [
+            2
+        ]
+    }
+}

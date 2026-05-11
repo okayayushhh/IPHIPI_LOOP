@@ -5,10 +5,12 @@ import { Sidebar, type Route } from "./components/Sidebar";
 import { BackendStatus } from "./components/BackendStatus";
 import { LandingScreen, type ParseResult } from "./components/screens/LandingScreen";
 import { RolesScreen } from "./components/screens/RolesScreen";
+import { PersonalityPickerScreen } from "./components/screens/PersonalityPickerScreen";
 import { InterviewScreen } from "./components/screens/InterviewScreen";
 import { FeedbackScreen } from "./components/screens/FeedbackScreen";
 import type { MultimodalAvgs } from "./components/screens/InterviewScreen";
 import { JobsScreen } from "./components/screens/JobsScreen";
+import { HistoryScreen } from "./components/screens/HistoryScreen";
 
 type InferredRole = ParseResult["inferred_roles"][number];
 
@@ -28,6 +30,7 @@ export default function Home() {
   const [route, setRoute] = useState<Route>("landing");
   const [resume, setResume] = useState<ParseResult | null>(null);
   const [selectedRole, setSelectedRole] = useState<InferredRole | null>(null);
+  const [personality, setPersonality] = useState<"mira" | "marcus" | "priya">("mira");
 
   // Interview session
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -44,7 +47,7 @@ export default function Home() {
   });
   return (
     <div className="app">
-      <Sidebar route={route} setRoute={setRoute} />
+      <Sidebar route={route} setRoute={setRoute} userName={resume?.name} />
       <main style={{ minWidth: 0, background: "var(--bg)", position: "relative" }}>
         {route === "landing" && (
           <LandingScreen setRoute={setRoute} setResume={setResume} />
@@ -53,12 +56,26 @@ export default function Home() {
           <RolesScreen resume={resume} setRoute={setRoute} onRoleSelected={setSelectedRole} />
         )}
         {route === "roles" && !resume && (
-          <PlaceholderScreen title="Upload a resume first" num="02" />
+  <PlaceholderScreen
+    title="Drop your résumé first"
+    num="02"
+    sub="We need to see what's on your résumé before we can suggest target roles to interview for. Click 01 Upload to start."
+  />
+)}
+        {route === "personality" && (
+          <PersonalityPickerScreen
+            role={selectedRole}
+            setRoute={setRoute}
+            onPersonalitySelected={(id) =>
+              setPersonality(id as "mira" | "marcus" | "priya")
+            }
+          />
         )}
         {route === "setup" && (
           <SetupScreen
             resume={resume}
             role={selectedRole}
+            personality={personality}
             setRoute={setRoute}
             onSessionReady={(sid, q, st) => {
               setSessionId(sid);
@@ -72,6 +89,7 @@ export default function Home() {
             sessionId={sessionId}
             initialQuestion={firstQuestion}
             initialState={initialState}
+            personality={personality}
             setRoute={setRoute}
             onEndInterview={(avgs) => {
               setMultimodalAvgs(avgs);
@@ -80,8 +98,12 @@ export default function Home() {
           />
         )}
         {route === "interview" && !sessionId && (
-          <PlaceholderScreen title="Start a session first" num="04" sub="Go back to step 03." />
-        )}
+  <PlaceholderScreen
+    title="Start a session first"
+    num="04"
+    sub="The interview live screen needs an active session. Go back to step 03 to choose your interviewer."
+  />
+)}
         {route === "feedback" && sessionId && (
           <FeedbackScreen
             sessionId={sessionId}
@@ -90,12 +112,16 @@ export default function Home() {
           />
         )}
         {route === "feedback" && !sessionId && (
-          <PlaceholderScreen title="Run an interview first" num="05" sub="Go back to step 01." />
-        )}
+  <PlaceholderScreen
+    title="Run an interview first"
+    num="05"
+    sub="Feedback shows after you complete a session. Start at step 01."
+  />
+)}
         {route === "jobs" && (
           <JobsScreen resume={resume} role={selectedRole} setRoute={setRoute} />
         )}
-        {route === "history" && <PlaceholderScreen title="Past sessions" num="07" />}
+        {route === "history" && <HistoryScreen setRoute={setRoute} />}
       </main>
       <BackendStatus />
     </div>
@@ -105,11 +131,13 @@ export default function Home() {
 function SetupScreen({
   resume,
   role,
+  personality,
   setRoute,
   onSessionReady,
 }: {
   resume: ParseResult | null;
   role: InferredRole | null;
+  personality: "mira" | "marcus" | "priya";
   setRoute: (r: Route) => void;
   onSessionReady: (sessionId: string, firstQuestion: string, state: StateSummary) => void;
 }) {
@@ -127,7 +155,7 @@ function SetupScreen({
       const res = await fetch("http://127.0.0.1:8000/api/interview/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume, target_role: role, max_questions: 6 }),
+        body: JSON.stringify({ resume, target_role: role, max_questions: 6, personality }),
       });
       if (!res.ok) throw new Error(`Server returned ${res.status}`);
       const data = await res.json();
@@ -158,7 +186,7 @@ function SetupScreen({
           How it works
         </div>
         <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13, lineHeight: 1.7, color: "var(--ink-2)" }}>
-          <li>Mira asks a question (you'll hear her voice)</li>
+          <li>Your interviewer asks a question (you'll hear them)</li>
           <li>Hold the green button to record your answer</li>
           <li>Release — the agent scores and decides what to ask next</li>
           <li>Difficulty adapts based on your answers</li>

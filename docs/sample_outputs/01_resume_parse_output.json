@@ -1,0 +1,239 @@
+{
+    "name": "Ayush Garg",
+    "email": "ayushgarg0212@gmail.com",
+    "phone": null,
+    "location": null,
+    "summary": "Computer Science undergraduate with hands-on experience in building end-to-end ML pipelines using Python, PyTorch, and scikit-learn. Eager to apply statistical, deep learning, and GenAI techniques to real-world engineering problems, particularly in aerospace and aviation analytics.",
+    "skills": [
+        {
+            "name": "Python",
+            "level": 0.9
+        },
+        {
+            "name": "PyTorch",
+            "level": 0.8
+        },
+        {
+            "name": "scikit-learn",
+            "level": 0.8
+        },
+        {
+            "name": "OpenCV",
+            "level": 0.7
+        },
+        {
+            "name": "pandas",
+            "level": 0.7
+        },
+        {
+            "name": "NumPy",
+            "level": 0.7
+        },
+        {
+            "name": "SQL",
+            "level": 0.6
+        },
+        {
+            "name": "FastAPI",
+            "level": 0.6
+        },
+        {
+            "name": "REST APIs",
+            "level": 0.6
+        },
+        {
+            "name": "Git/GitHub",
+            "level": 0.6
+        },
+        {
+            "name": "Docker",
+            "level": 0.5
+        },
+        {
+            "name": "AWS",
+            "level": 0.4
+        },
+        {
+            "name": "Kubernetes",
+            "level": 0.4
+        },
+        {
+            "name": "Java",
+            "level": 0.5
+        },
+        {
+            "name": "Spring Boot",
+            "level": 0.5
+        },
+        {
+            "name": "React",
+            "level": 0.4
+        },
+        {
+            "name": "Node.js",
+            "level": 0.4
+        },
+        {
+            "name": "Express.js",
+            "level": 0.4
+        },
+        {
+            "name": "MongoDB",
+            "level": 0.4
+        },
+        {
+            "name": "Deep Learning",
+            "level": 0.8
+        },
+        {
+            "name": "Computer Vision",
+            "level": 0.8
+        },
+        {
+            "name": "Recommender Systems",
+            "level": 0.7
+        },
+        {
+            "name": "NLP",
+            "level": 0.6
+        },
+        {
+            "name": "Model Evaluation",
+            "level": 0.7
+        }
+    ],
+    "experience": [
+        {
+            "role": "Tech Head",
+            "organization": "Etincelle, Soiree Francophonie",
+            "period": "Mar. 2025 – May. 2025",
+            "bullets": [
+                "Coordinated French language-focused cultural events while leading the technical team responsible for event infrastructure, AV setup, and on-site technical support."
+            ]
+        },
+        {
+            "role": "Events Head",
+            "organization": "Gamescon",
+            "period": "Nov. 2024",
+            "bullets": [
+                "Led planning and execution of campus gaming tournaments, overseeing event logistics, team coordination, and participant registration for 100+ attendees."
+            ]
+        },
+        {
+            "role": "Member",
+            "organization": "Enigma Club",
+            "period": "Sept. 2024 – Feb. 2025",
+            "bullets": [
+                "Active member of the university competitive programming and project club, participating in coding challenges and collaborative technical projects."
+            ]
+        }
+    ],
+    "projects": [
+        {
+            "name": "Item Detection using Computer Vision",
+            "blurb": "Built an end-to-end object detection and classification pipeline using deep learning, covering the full workflow from raw image collection through preprocessing, model training, and quantitative evaluation. Engineered the data pipeline in OpenCV with image labelling, normalisation, and augmentation strategies. Trained and tuned CNN-based detection models in PyTorch, evaluating performance using mAP, precision, and recall.",
+            "tags": [
+                "Python",
+                "PyTorch",
+                "OpenCV",
+                "NumPy",
+                "Computer Vision",
+                "Deep Learning"
+            ]
+        },
+        {
+            "name": "Peer-to-Peer Tutoring Platform",
+            "blurb": "Designing and training a questionnaire-driven recommendation model in scikit-learn that maps student knowledge gaps to personalised learning paths and matches students with suitable peer mentors. Building an NLP layer for the community Q&A forum that performs automatic tag generation and duplicate-question detection. Exposing trained models through FastAPI services integrated with a full-stack React/Node.js application.",
+            "tags": [
+                "Python",
+                "scikit-learn",
+                "FastAPI",
+                "MongoDB",
+                "React",
+                "NLP",
+                "Recommender Systems"
+            ]
+        },
+        {
+            "name": "Pothole Reporter",
+            "blurb": "Built an SMS-based civic-tech tool that collected geotagged pothole reports with images via Twilio integration, generating a structured spatial dataset. Designed the relational schema and Spring Boot services to ingest, validate, and store incoming reports. Developed REST APIs for efficient retrieval, tracking, and aggregation of report data.",
+            "tags": [
+                "Java",
+                "Spring Boot",
+                "Twilio API",
+                "SQL",
+                "REST APIs"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "Mahindra University",
+            "degree": "B.Tech. Computer Science",
+            "period": "Expected June 2027",
+            "gpa": "8.0 / 10.0"
+        },
+        {
+            "school": "Jai Hind Public School",
+            "degree": "Class XII",
+            "period": "May 2023",
+            "gpa": null
+        }
+    ],
+    "seniority": "Entry / New-grad",
+    "domains": [
+        "Data Science",
+        "Machine Learning",
+        "Computer Vision",
+        "Backend",
+        "Web Development"
+    ],
+    "years_of_experience": 0.0,
+    "inferred_roles": [
+        {
+            "id": "ml-engineer-intern",
+            "title": "Machine Learning Engineer Intern",
+            "fit": 0.85,
+            "why": [
+                "Demonstrated end-to-end ML pipeline experience in 'Item Detection using Computer Vision' project, including data preprocessing, model training (PyTorch, CNNs), and evaluation (mAP).",
+                "Developed a recommendation model and NLP layer for the 'Peer-to-Peer Tutoring Platform', showcasing practical application of ML concepts.",
+                "Strong foundation in core ML/DS skills like Python, PyTorch, scikit-learn, and relevant coursework like Machine Learning and Recommender Systems."
+            ],
+            "gaps": [
+                "Depth of experience with production ML deployment and MLOps practices.",
+                "Specific experience with large-scale data processing and distributed training frameworks.",
+                "Understanding of A/B testing and model monitoring in a live environment."
+            ]
+        },
+        {
+            "id": "data-scientist-intern",
+            "title": "Data Scientist Intern",
+            "fit": 0.8,
+            "why": [
+                "Built an object detection pipeline with quantitative evaluation metrics (mAP, precision, recall) in the 'Item Detection' project.",
+                "Designed a recommendation model and NLP features for the 'Peer-to-Peer Tutoring Platform', indicating analytical and modeling capabilities.",
+                "Coursework and summary highlight strong interest and foundational knowledge in statistics, deep learning, and GenAI."
+            ],
+            "gaps": [
+                "Experience with statistical modeling beyond supervised learning (e.g., time series, causal inference).",
+                "Familiarity with business intelligence tools and dashboarding for data analysis.",
+                "Real-world experience translating business problems into data science solutions."
+            ]
+        },
+        {
+            "id": "software-engineer-backend-intern",
+            "title": "Software Engineer (Backend) Intern",
+            "fit": 0.7,
+            "why": [
+                "Developed backend services using FastAPI for ML model deployment in the 'Peer-to-Peer Tutoring Platform'.",
+                "Built a full-stack application with Java, Spring Boot, and REST APIs for the 'Pothole Reporter' project, demonstrating backend development skills.",
+                "Experience with SQL and database design for the 'Pothole Reporter' project."
+            ],
+            "gaps": [
+                "Depth of experience with enterprise-level backend frameworks and distributed systems.",
+                "Familiarity with cloud-native backend development patterns (e.g., microservices, serverless).",
+                "Experience with CI/CD pipelines for backend services."
+            ]
+        }
+    ]
+}

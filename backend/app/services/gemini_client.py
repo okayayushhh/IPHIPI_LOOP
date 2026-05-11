@@ -1,5 +1,6 @@
 """Thin wrapper around Google Gemini API with hot/cold model tiers."""
 import google.generativeai as genai
+import httpx
 from app.config import settings
 
 

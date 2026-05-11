@@ -1,34 +1,41 @@
-# Python
-backend/venv/
-backend/__pycache__/
-**/__pycache__/
-*.pyc
-*.pyo
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Environment variables (NEVER commit secrets)
+# Virtual env
+venv/
+env/
+.venv/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Secrets — NEVER commit these
 .env
 .env.local
+.env.production
 backend/.env
-frontend/.env.local
 
-# Node / Next.js
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/build/
-
-# Mac
-.DS_Store
+# Database
+backend/loop.db
+backend/loop.db-journal
+backend/loop.db-wal
+backend/loop.db-shm
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Data + uploads
-*.db
-*.sqlite
-backend/uploads/
-backend/data/
+# OS
+.DS_Store
+Thumbs.db
 
-# Logs
+# Misc
 *.log
